@@ -13,6 +13,7 @@ import {
   rabbyWallet,
   coinbaseWallet,
   trustWallet,
+  phantomWallet,
 } from '@rainbow-me/rainbowkit/wallets'
 import { createConfig, WagmiProvider } from 'wagmi'
 import { base } from 'wagmi/chains'
@@ -28,6 +29,7 @@ const connectors = connectorsForWallets(
       wallets: [
         metaMaskWallet,
         rabbyWallet,
+        phantomWallet,
         rainbowWallet,
         coinbaseWallet,
         walletConnectWallet,
