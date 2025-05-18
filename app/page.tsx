@@ -110,7 +110,7 @@ export default function HomePage() {
     // First check the effective fee (including discounts)
     const feeResult = await fetchEffectiveFee()
     const feeToUse = feeResult.data as bigint || subscriptionFee
-    setEffectiveFee(feeToUse)
+    setEffectiveFee(feeToUse || null)
     setCheckingFee(false)
     
     if (!feeToUse) return
