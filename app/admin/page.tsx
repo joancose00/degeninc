@@ -5,7 +5,6 @@ import { useAccount, useReadContract, useWriteContract } from 'wagmi'
 import { TELEGRAM_SUBSCRIPTION_ADDRESS, TELEGRAM_SUBSCRIPTION_ABI } from '@/constants/contract'
 import { useState, useEffect } from 'react'
 import { parseUnits, formatUnits } from 'viem'
-import { Navigation } from '@/components/Navigation'
 import { ContractNotDeployed } from '@/components/ContractNotDeployed'
 import { BalanceBadge } from '@/components/BalanceBadge'
 import { ContractStats } from '@/components/admin/ContractStats'
@@ -59,7 +58,6 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
-        <Navigation />
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-purple-400">Admin Dashboard</h1>
           <div className="flex items-center gap-4">
