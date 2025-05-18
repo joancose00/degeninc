@@ -139,6 +139,29 @@ export const TELEGRAM_SUBSCRIPTION_ABI = [
       {"name": "offset", "type": "uint256"},
       {"name": "limit", "type": "uint256"}
     ],
+    "name": "getAllSubscribers",
+    "outputs": [
+      {"name": "", "type": "address[]"},
+      {
+        "components": [
+          {"name": "telegramUsername", "type": "string"},
+          {"name": "expiresAt", "type": "uint256"},
+          {"name": "totalPaid", "type": "uint256"},
+          {"name": "subscriptionCount", "type": "uint256"}
+        ],
+        "name": "",
+        "type": "tuple[]"
+      },
+      {"name": "", "type": "uint256"}
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"name": "offset", "type": "uint256"},
+      {"name": "limit", "type": "uint256"}
+    ],
     "name": "getContributors",
     "outputs": [
       {"name": "", "type": "address[]"},
