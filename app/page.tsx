@@ -17,6 +17,7 @@ export default function HomePage() {
   const [mounted, setMounted] = useState(false)
   const [effectiveFee, setEffectiveFee] = useState<bigint | null>(null)
   const [checkingFee, setCheckingFee] = useState(false)
+  const [balanceError, setBalanceError] = useState<string | null>(null)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
 
   useEffect(() => {
@@ -86,6 +87,14 @@ export default function HomePage() {
     },
   })
 
+  const { data: usdcBalance } = useReadContract({
+    address: USDC_ADDRESS as `0x${string}`,
+    abi: USDC_ABI,
+    functionName: 'balanceOf',
+    args: address ? [address] : undefined,
+    query: { enabled: !!address },
+  })
+
   // Contract writes
   const { writeContract: approve, isPending: isApprovePending, data: approveHash } = useWriteContract()
 
@@ -105,6 +114,7 @@ export default function HomePage() {
     if (!telegramUsername) return
     
     setCheckingFee(true)
+    setBalanceError(null)
     
     // First check the effective fee (including discounts)
     const feeResult = await fetchEffectiveFee()
@@ -113,6 +123,12 @@ export default function HomePage() {
     setCheckingFee(false)
     
     if (!feeToUse) return
+    
+    // Check if user has enough USDC balance
+    if (usdcBalance && usdcBalance < feeToUse) {
+      setBalanceError(`Insufficient USDC balance. You need ${Number(formatUnits(feeToUse, 6)).toFixed(2)} USDC but only have ${Number(formatUnits(usdcBalance, 6)).toFixed(2)} USDC.`)
+      return
+    }
     
     const needsApproval = !allowance || allowance < feeToUse
     
@@ -187,10 +203,18 @@ export default function HomePage() {
   const handleRenew = async () => {
     if (!subscription?.telegramUsername) return
     
+    setBalanceError(null)
+    
     // Use the existing effective fee or fall back to subscription fee
     const feeToUse = existingEffectiveFee || subscriptionFee
     
     if (!feeToUse) return
+    
+    // Check if user has enough USDC balance
+    if (usdcBalance && usdcBalance < feeToUse) {
+      setBalanceError(`Insufficient USDC balance. You need ${Number(formatUnits(feeToUse, 6)).toFixed(2)} USDC but only have ${Number(formatUnits(usdcBalance, 6)).toFixed(2)} USDC.`)
+      return
+    }
     
     const needsApproval = !allowance || allowance < feeToUse
     
@@ -332,6 +356,12 @@ export default function HomePage() {
                     )}
                   </div>
                 ) : null}
+
+                {balanceError && (
+                  <div className="p-3 bg-red-900/20 border border-red-600 rounded-lg">
+                    <p className="text-red-400 text-sm">{balanceError}</p>
+                  </div>
+                )}
 
                 <button
                   onClick={subscription && subscription.telegramUsername ? handleRenew : handleSubscribe}
