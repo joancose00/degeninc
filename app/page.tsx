@@ -19,6 +19,7 @@ export default function HomePage() {
   const [checkingFee, setCheckingFee] = useState(false)
   const [balanceError, setBalanceError] = useState<string | null>(null)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+  const [showNewSubscription, setShowNewSubscription] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -250,7 +251,7 @@ export default function HomePage() {
     <div className="min-h-screen p-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-purple-400">Telegram Subscription</h1>
+          <h1 className="text-4xl font-bold text-purple-400">Degen Inc.</h1>
           <div className="flex items-center gap-4">
             {address && <BalanceBadge />}
             <ConnectButton />
@@ -296,8 +297,8 @@ export default function HomePage() {
                       </span>
                     </p>
                     <p><span className="text-gray-400">Expires:</span> {formatDate(subscription.expiresAt)}</p>
-                    <p><span className="text-gray-400">Total Paid:</span> ${Number(formatUnits(subscription.totalPaid, 6)).toFixed(2)} USDC</p>
-                    <p><span className="text-gray-400">Subscriptions:</span> {subscription.subscriptionCount.toString()}</p>
+                    <p><span className="text-gray-400">Monthly Payment:</span> ${subscription.subscriptionCount > 0 ? (Number(formatUnits(subscription.totalPaid, 6)) / Number(subscription.subscriptionCount)).toFixed(2) : '0.00'} USDC</p>
+                    <p><span className="text-gray-400">Months Paid:</span> {subscription.subscriptionCount.toString()}</p>
                   </div>
                   {isActive && process.env.NEXT_PUBLIC_INVITE_LINK && (
                     <div className="mt-4 p-4 bg-purple-900/20 border border-purple-600 rounded-lg">
@@ -325,7 +326,7 @@ export default function HomePage() {
             {/* Subscribe/Renew */}
             <div className="card">
               <h2 className="text-2xl font-semibold mb-4">
-                {subscription && subscription.telegramUsername ? 'Renew Subscription' : 'Subscribe'}
+                {subscription && subscription.telegramUsername && !showNewSubscription ? 'Renew Subscription' : 'Subscribe'}
               </h2>
               
               <div className="space-y-4">
@@ -339,8 +340,37 @@ export default function HomePage() {
                   <p className="text-green-400">Your Discounted Price: ${Number(formatUnits(existingEffectiveFee, 6)).toFixed(2)} USDC</p>
                 )}
                 
-                {!subscription || !subscription.telegramUsername ? (
+                {/* Small link for changing username option */}
+                {subscription?.telegramUsername && (
+                  <div className="text-right mb-3">
+                    <button
+                      onClick={() => setShowNewSubscription(!showNewSubscription)}
+                      className="text-sm text-gray-400 hover:text-purple-400 underline transition-colors"
+                    >
+                      {showNewSubscription ? 'Renew existing' : 'Renew with different username'}
+                    </button>
+                  </div>
+                )}
+                
+                {/* Renewal info message */}
+                {subscription?.telegramUsername && !showNewSubscription && (
+                  <div className="p-3 bg-purple-900/20 border border-purple-600/20 rounded-lg">
+                    <p className="text-sm text-purple-300">
+                      <span className="text-purple-400">ℹ</span> Renewing will extend your subscription by 30 days from your current expiration date
+                    </p>
+                  </div>
+                )}
+                
+                {(!subscription || !subscription.telegramUsername || showNewSubscription) ? (
                   <div>
+                    <div className="p-3 bg-purple-900/20 border border-purple-600/20 rounded-lg mb-4">
+                      <p className="text-sm text-purple-300">
+                        <span className="text-purple-400">ℹ</span> 
+                        {subscription?.telegramUsername && showNewSubscription 
+                          ? ' Enter a different Telegram username to update your subscription. This will replace your current username.'
+                          : ' Enter your Telegram username to subscribe. You\'ll receive an invite link after payment.'}
+                      </p>
+                    </div>
                     <label className="block text-sm font-medium mb-2">Telegram Username</label>
                     <input
                       type="text"
@@ -364,19 +394,18 @@ export default function HomePage() {
                 )}
 
                 <button
-                  onClick={subscription && subscription.telegramUsername ? handleRenew : handleSubscribe}
+                  onClick={(subscription && subscription.telegramUsername && !showNewSubscription) ? handleRenew : handleSubscribe}
                   disabled={
-                    ((!subscription || !subscription.telegramUsername) && !telegramUsername) ||
+                    (((!subscription || !subscription.telegramUsername) || showNewSubscription) && !telegramUsername) ||
                     isApprovePending || isSubscribePending || isRenewPending || checkingFee
                   }
                   className="wallet-button w-full disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {checkingFee ? 'Checking for discounts...' :
-                   isApprovePending || isApprovalConfirming ? 'Approving USDC...' :
+                  {isApprovePending || isApprovalConfirming ? 'Approving USDC...' :
                    isSubscribePending ? 'Subscribing...' :
                    isRenewPending ? 'Renewing...' :
                    isApproving ? 'Waiting for approval...' :
-                   subscription && subscription.telegramUsername ? 'Renew Subscription' : 'Subscribe'}
+                   (subscription && subscription.telegramUsername && !showNewSubscription) ? 'Renew Subscription' : 'Subscribe'}
                 </button>
               </div>
             </div>
@@ -388,6 +417,45 @@ export default function HomePage() {
             <ConnectButton />
           </div>
         )}
+        
+        {/* Information Section */}
+        <div className="mt-8 card bg-gray-900/50">
+          <h3 className="text-xl font-semibold mb-4 text-purple-400">How It Works</h3>
+          <div className="space-y-3 text-gray-300">
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-purple-400 rounded-full mt-1.5 flex-shrink-0"></div>
+              <p>You're subscribing for <span className="text-white font-medium">30 days</span> of access to our exclusive Telegram group</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-purple-400 rounded-full mt-1.5 flex-shrink-0"></div>
+              <p>After subscribing, you'll receive an <span className="text-white font-medium">invite link</span> to join the Telegram group</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-purple-400 rounded-full mt-1.5 flex-shrink-0"></div>
+              <p>Payment is made in <span className="text-white font-medium">USDC</span> on the Base network</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-purple-400 rounded-full mt-1.5 flex-shrink-0"></div>
+              <p>Your subscription will expire after 30 days - <span className="text-white font-medium">manual renewal required</span></p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-purple-400 rounded-full mt-1.5 flex-shrink-0"></div>
+              <p>Renew at any time - adds 30 days to your existing time with <span className="text-white font-medium">no penalty for early renewal</span></p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-purple-400 rounded-full mt-1.5 flex-shrink-0"></div>
+              <p>7-day grace period after expiration - renew within this time to maintain access</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-purple-400 rounded-full mt-1.5 flex-shrink-0"></div>
+              <p>Each wallet can only have <span className="text-white font-medium">one active subscription</span></p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-purple-400 rounded-full mt-1.5 flex-shrink-0"></div>
+              <p>Changing your Telegram username will <span className="text-white font-medium">update your existing subscription</span>, not create a new one</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

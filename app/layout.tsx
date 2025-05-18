@@ -6,8 +6,8 @@ import { Providers } from './providers'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Telegram Subscription Manager',
-  description: 'Manage your Telegram subscription on Base network',
+  title: 'Degen Inc Subscription Manager',
+  description: 'Manage your Degen Inc Telegram subscription on Base network',
   icons: {
     icon: [
       { url: '/favicon.ico' },
