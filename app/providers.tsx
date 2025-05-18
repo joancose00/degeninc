@@ -14,6 +14,7 @@ import {
   coinbaseWallet,
   trustWallet,
   phantomWallet,
+  uniswapWallet,
 } from '@rainbow-me/rainbowkit/wallets'
 import { createConfig, WagmiProvider } from 'wagmi'
 import { base } from 'wagmi/chains'
@@ -34,6 +35,7 @@ const connectors = connectorsForWallets(
         coinbaseWallet,
         walletConnectWallet,
         trustWallet,
+        uniswapWallet,
       ],
     },
   ],
