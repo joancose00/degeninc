@@ -38,7 +38,7 @@ const connectors = connectorsForWallets(
     },
   ],
   {
-    appName: 'Telegram Subscription',
+    appName: 'Degen Inc',
     projectId,
   }
 )
@@ -47,7 +47,9 @@ const config = createConfig({
   connectors,
   chains: [base],
   transports: {
-    [base.id]: http(),
+    [base.id]: http(undefined, {
+      timeout: 30_000, // 30 seconds timeout
+    }),
   },
 })
 
